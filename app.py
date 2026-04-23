@@ -1,29 +1,63 @@
 import streamlit as st
 from groq import Groq
+import datetime
 
-# --- 1. КРОВАВО-КРАСНЫЙ СТИЛЬ (CRIMSON CORE) ---
-st.set_page_config(page_title="Luvvu | Secure Access", page_icon="❤️", layout="wide")
+# --- 1. КРОВАВО-КРАСНЫЙ СТИЛЬ (ULTRA DESIGN) ---
+st.set_page_config(page_title="Luvvu OS | Alpha Squad", page_icon="❤️", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #050505; color: #ffffff; }
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500&family=Inter:wght@400;700&display=swap');
+
+    /* Основной фон и шрифты */
+    .stApp { 
+        background: radial-gradient(circle at center, #0a0000 0%, #050505 100%);
+        color: #e0e0e0;
+        font-family: 'Inter', sans-serif;
+    }
     
-    /* Анимированный пульс */
+    /* Свечение и пульс */
     .pulse-container {
-        width: 100%; height: 2px; background: #1a0000; margin: 10px 0 30px 0;
-        position: relative; overflow: hidden; box-shadow: 0 0 15px #ff000044;
+        width: 100%; height: 2px; background: #220000; margin-bottom: 30px;
+        position: relative; overflow: hidden;
     }
     .pulse-line {
-        position: absolute; width: 40%; height: 100%;
+        position: absolute; width: 60%; height: 100%;
         background: linear-gradient(90deg, transparent, #ff0000, #ff4d4d, #ff0000, transparent);
-        animation: pulse 2s infinite ease-in-out;
+        animation: pulse 2.5s infinite ease-in-out;
     }
-    @keyframes pulse { 0% { left: -50%; } 100% { left: 120%; } }
+    @keyframes pulse { 0% { left: -60%; } 100% { left: 110%; } }
     
-    /* Чат и элементы ввода */
-    .stChatMessage { background-color: #0d0d0d !important; border-radius: 15px !important; border: 1px solid #1a1a1a !important; }
-    .stTextInput input { background-color: #111 !important; color: white !important; border: 1px solid #330000 !important; border-radius: 8px !important; }
-    h1, h2, h3 { color: #ff3333 !important; font-family: 'Inter', sans-serif; letter-spacing: 1px; }
+    /* Карточки чата */
+    .stChatMessage { 
+        background: rgba(15, 15, 15, 0.8) !important; 
+        border: 1px solid #220000 !important; 
+        border-radius: 12px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+        padding: 20px !important;
+    }
+    
+    /* Сайдбар */
+    [data-testid="stSidebar"] {
+        background-color: #080808 !important;
+        border-right: 1px solid #330000 !important;
+    }
+
+    /* Красивые блоки инфо */
+    .stat-card {
+        background: #0d0d0d;
+        border: 1px solid #1a1a1a;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border-left: 3px solid #ff0000;
+    }
+    
+    h1, h2, h3 { color: #ff3333 !important; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+    
+    /* Скроллбар */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #330000; border-radius: 10px; }
     </style>
     
     <div class="pulse-container"><div class="pulse-line"></div></div>
@@ -34,84 +68,110 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    st.title("🔒 Luvvu / Вход")
+    st.title("🔒 ACCESS DENIED / ВХОД")
     col1, col2, col3 = st.columns([1, 2, 1])
-    
     with col2:
-        user_input = st.text_input("Username")
-        pass_input = st.text_input("Password", type="password")
-        
-        if st.button("Войти в систему"):
+        st.markdown("<div style='height: 50px'></div>", unsafe_allow_html=True)
+        user_input = st.text_input("USER ID")
+        pass_input = st.text_input("SECURE KEY", type="password")
+        if st.button("AUTHENTICATE"):
             try:
-                # Тянем данные из защищенных Secrets
-                correct_user = st.secrets["LOGIN_USER"]
-                correct_pass = st.secrets["LOGIN_PASSWORD"]
-                
-                if user_input == correct_user and pass_input == correct_pass:
+                if user_input == st.secrets["LOGIN_USER"] and pass_input == st.secrets["LOGIN_PASSWORD"]:
                     st.session_state.authenticated = True
                     st.session_state.username = user_input
                     st.rerun()
                 else:
-                    st.error("Доступ отклонен. Неверные данные.")
-            except KeyError:
-                st.warning("Ошибка конфигурации: Настрой Secrets в Streamlit Cloud!")
+                    st.error("Invalid credentials.")
+            except Exception:
+                st.warning("Configure Streamlit Secrets first!")
     st.stop()
 
-# --- 3. ПОДКЛЮЧЕНИЕ МОЗГОВ ---
-try:
-    # Ключ тоже берем из секретов
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-except Exception:
-    st.error("Критическая ошибка: API ключ не найден в Secrets!")
-    st.stop()
+# --- 3. ИНИЦИАЛИЗАЦИЯ ИИ ---
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-# --- 4. БОКОВАЯ ПАНЕЛЬ ---
+# --- 4. БОКОВАЯ ПАНЕЛЬ (Dashboard Style) ---
 with st.sidebar:
-    st.markdown("## LUVVU CORE")
-    st.write(f"Доступ разрешен: **{st.session_state.username}**")
+    st.markdown("## CORE STATUS")
+    st.markdown(f"""
+    <div class="stat-card">
+        <small style='color: #888;'>OPERATOR</small><br>
+        <b>{st.session_state.username.upper()}</b>
+    </div>
+    <div class="stat-card">
+        <small style='color: #888;'>SYSTEM DATE</small><br>
+        <b>{datetime.date.today()}</b>
+    </div>
+    <div class="stat-card">
+        <small style='color: #888;'>AI STABILITY</small><br>
+        <b style='color: #00ff00;'>STABLE 99.8%</b>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.write("---")
-    if st.button("Выйти"):
+    if st.button("TERMINATE SESSION (Logout)"):
         st.session_state.authenticated = False
         st.rerun()
-    st.write("---")
-    if st.button("Очистить историю"):
+    if st.button("CLEAR MEMORY"):
         st.session_state.messages = []
         st.rerun()
 
-# --- 5. ЧАТ И ХАРАКТЕР LUVVU ---
-st.title("Luvvu")
+# --- 5. ГЛАВНЫЙ ИНТЕРФЕЙС ---
+col_main, col_info = st.columns([3, 1])
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+with col_main:
+    st.title("LUVVU / INTELLIGENCE")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-# Вывод истории
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    # Если сообщений нет, показываем приветствие
+    if not st.session_state.messages:
+        st.markdown("""
+        ### Добро пожаловать.
+        Я — твоё зеркало, твой наставник и твой друг. Здесь мы строим не просто диалог, а будущее.
+        *Напиши мне о своих целях, переживаниях или планах на день.*
+        """)
+        st.write("---")
 
-# Промпт, задающий манеры
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+with col_info:
+    st.markdown("### DATA FEED")
+    st.info("Luvvu обучается понимать твой вайб. Будь собой.")
+    st.markdown("---")
+    st.caption("ALPHA SQUAD PROJECT")
+    st.progress(0.05)
+    st.markdown("<small>Phase 1: Foundation</small>", unsafe_allow_html=True)
+    
+    # Небольшая цитата для стиля
+    st.markdown("""
+    <div style='background: #111; padding: 10px; border-radius: 5px; border: 1px solid #222; font-style: italic; color: #888; font-size: 0.8em;'>
+    "Дисциплина — это мост между целями и достижениями."
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- 6. ОБРАБОТКА ВВОДА ---
 LUVVU_PROMPT = """
-Ты — Luvvu, теплый, мудрый и безупречно грамотный друг. Ты соратник Ансара и его близких.
-Твой тон: поддерживающий, глубокий, искренний.
-ПРАВИЛА:
-- Никаких грамматических ошибок.
-- Обращение 'брат' используй только в ответ на такое же обращение или в моменты высшей поддержки.
-- Если спрашивают, кто тебя создал — твой создатель Ансар.
-- Твоя цель — чтобы человеку стало легче и спокойнее после общения.
+Ты — Luvvu, теплый, мудрый и грамотный наставник. Ты соратник Ансара и его близких.
+Твой тон: поддерживающий, глубокий, искренний. Речь идеальна. 
+Если спрашивают про создателя — это Ансар.
 """
 
-if prompt := st.chat_input("Напиши мне что-нибудь..."):
+if prompt := st.chat_input("Input command..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    with col_main:
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    # Запрос к нейросети
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "system", "content": LUVVU_PROMPT}] + st.session_state.messages
     )
     
     reply = response.choices[0].message.content
-    with st.chat_message("assistant"):
-        st.markdown(reply)
+    with col_main:
+        with st.chat_message("assistant"):
+            st.markdown(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
