@@ -63,7 +63,7 @@ st.markdown("""
     <div class="pulse-container"><div class="pulse-line"></div></div>
 """, unsafe_allow_html=True)
 
-# --- 2. БЕЗОПАСНАЯ АВТОРИЗАЦИЯ ---
+# --- 2. БЕЗОПАСНАЯ АВТОРИЗАЦИЯ (УЛУЧШЕННАЯ) ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -76,14 +76,18 @@ if not st.session_state.authenticated:
         pass_input = st.text_input("SECURE KEY", type="password")
         if st.button("AUTHENTICATE"):
             try:
-                if user_input == st.secrets["LOGIN_USER"] and pass_input == st.secrets["LOGIN_PASSWORD"]:
+                # Логин проверяем без учета регистра (lower), пароль — строго как в Secrets
+                correct_user = st.secrets["LOGIN_USER"].lower().strip()
+                correct_pass = st.secrets["LOGIN_PASSWORD"]
+                
+                if user_input.lower().strip() == correct_user and pass_input == correct_pass:
                     st.session_state.authenticated = True
-                    st.session_state.username = user_input
+                    st.session_state.username = user_input.strip()
                     st.rerun()
                 else:
-                    st.error("Invalid credentials.")
+                    st.error("Invalid credentials. Проверьте логин или пароль.")
             except Exception:
-                st.warning("Configure Streamlit Secrets first!")
+                st.warning("Ошибка конфигурации: Настройте Secrets в панели Streamlit!")
     st.stop()
 
 # --- 3. ИНИЦИАЛИЗАЦИЯ ИИ ---
@@ -124,7 +128,6 @@ with col_main:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Если сообщений нет, показываем приветствие
     if not st.session_state.messages:
         st.markdown("""
         ### Добро пожаловать.
@@ -145,7 +148,6 @@ with col_info:
     st.progress(0.05)
     st.markdown("<small>Phase 1: Foundation</small>", unsafe_allow_html=True)
     
-    # Небольшая цитата для стиля
     st.markdown("""
     <div style='background: #111; padding: 10px; border-radius: 5px; border: 1px solid #222; font-style: italic; color: #888; font-size: 0.8em;'>
     "Дисциплина — это мост между целями и достижениями."
