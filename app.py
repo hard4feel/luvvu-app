@@ -22,43 +22,41 @@ st.markdown("""
     <div class="pulse-container"><div class="pulse-line"></div></div>
 """, unsafe_allow_html=True)
 
-# --- 2. СИСТЕМА ЛОГИНА (АВТОРИЗАЦИЯ) ---
+# --- 2. СИСТЕМА ЛОГИНА (ИСПРАВЛЕННАЯ) ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
-
-def check_login():
-    if (st.session_state.get("user_input") == "founder" and 
-        st.session_state.get("pass_input") == "luvvuprojectX7132"):
-        st.session_state.authenticated = True
-        st.success("Доступ разрешен. Синхронизация...")
-        st.rerun()
-    else:
-        if st.session_state.get("user_input"):
-            st.error("Ошибка доступа. Проверьте данные.")
 
 if not st.session_state.authenticated:
     st.title("🔒 Luvvu / Вход в систему")
     col1, col2, col3 = st.columns([1, 2, 1])
+    
     with col2:
-        st.text_input("Username", key="user_input")
-        st.text_input("Password", type="password", key="pass_input")
-        st.button("Войти", on_click=check_login)
+        user_input = st.text_input("Username")
+        pass_input = st.text_input("Password", type="password")
+        
+        if st.button("Войти"):
+            if user_input == "founder" and pass_input == "luvvuprojectX7132":
+                st.session_state.authenticated = True
+                st.session_state.username = user_input
+                st.rerun() # Теперь сработает четко
+            else:
+                st.error("Ошибка доступа. Проверьте данные.")
     st.stop()
 
-# --- 3. ПОДКЛЮЧЕНИЕ ИИ (После успешного входа) ---
+# --- 3. ПОДКЛЮЧЕНИЕ ИИ (После входа) ---
 try:
     GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 except:
-    GROQ_API_KEY = "ВСТАВЬ_СЮДА_СВОЙ_КЛЮЧ_ДЛЯ_ЛОКАЛЬНОГО_ТЕСТА"
+    GROQ_API_KEY = "ВСТАВЬ_СЮДА_СВОЙ_КЛЮЧ"
 
 client = Groq(api_key=GROQ_API_KEY)
 
 # --- 4. БОКОВАЯ ПАНЕЛЬ ---
 with st.sidebar:
     st.title("LUVVU CORE")
-    st.write(f"Вы вошли как: **{st.session_state.user_input}**")
+    st.write(f"Аккаунт: **{st.session_state.get('username', 'User')}**")
     st.write("---")
-    if st.button("Выйти из аккаунта"):
+    if st.button("Выйти из системы"):
         st.session_state.authenticated = False
         st.rerun()
     st.write("---")
